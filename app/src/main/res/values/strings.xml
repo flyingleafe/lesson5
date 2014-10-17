@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Exercise1</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="ok_button">OK</string>
+    <string name="empty_text">Add some strings, sweetie</string>
+    <string name="list_elem_text">looool</string>
+
+</resources>
