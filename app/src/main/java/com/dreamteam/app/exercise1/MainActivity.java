@@ -5,35 +5,48 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 
-public class MyActivity extends ListActivity {
+public class MainActivity extends ListActivity {
 
-    EditText input;
-    MyAdapter<String> adapter;
+    TextView channelTitle;
+    TextView channelDesc;
+    FeedAdapter adapter;
     ListView list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
-        input = (EditText) findViewById(R.id.input);
+        channelTitle = (TextView) findViewById(R.id.channel_title);
+        channelDesc = (TextView) findViewById(R.id.channel_desc);
         list = getListView();
-        adapter = new MyAdapter<String>(new ArrayList<String>());
+        adapter = new FeedAdapter(new Feed());
         setListAdapter(adapter);
+        refreshFeed(null);
     }
 
-    public void hello(View view) {
-        String in = input.getText().toString();
-        Toast.makeText(this, in, Toast.LENGTH_SHORT).show();
-        adapter.add(in);
+    public void showToast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
+    public void setListContents(Feed contents) {
+        channelTitle.setText(contents.getTitle());
+        channelDesc.setText(contents.getDescription());
+        adapter.setData(contents);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void refreshFeed(View view) {
+        showToast(getString(R.string.feed_refresh));
+        FetchFeedTask task = new FetchFeedTask(this);
+        task.execute("http://bash.im/rss/");
     }
 
     @Override

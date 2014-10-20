@@ -12,22 +12,22 @@ import java.util.List;
 /**
  * Created by flyingleafe on 14.10.14.
  */
-public class MyAdapter<T> extends BaseAdapter {
+public class FeedAdapter extends BaseAdapter {
 
-    private List<T> data;
+    private Feed data;
 
-    public MyAdapter(List<T> data) {
+    public FeedAdapter(Feed data) {
         this.data = data;
     }
 
     @Override
     public int getCount() {
-        return data.size();
+        return data.getItems().size();
     }
 
     @Override
     public Object getItem(int i) {
-        return data.get(i);
+        return data.getItems().get(i);
     }
 
     @Override
@@ -36,13 +36,17 @@ public class MyAdapter<T> extends BaseAdapter {
     }
 
     public void deleteItem(int i) {
-        data.remove(i);
+        data.getItems().remove(i);
         notifyDataSetChanged();
     }
 
-    public void add(T o) {
-        data.add(o);
+    public void add(FeedItem o) {
+        data.getItems().add(o);
         notifyDataSetChanged();
+    }
+
+    public void setData(Feed data) {
+        this.data = data;
     }
 
     @Override
@@ -50,14 +54,20 @@ public class MyAdapter<T> extends BaseAdapter {
         if (view == null) {
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
         }
-        TextView text = (TextView) view.findViewById(android.R.id.text1);
-        text.setText(getItem(i).toString());
-        Button button = (Button) view.findViewById(android.R.id.button1);
-        button.setOnClickListener(new View.OnClickListener() {
+        TextView title = (TextView) view.findViewById(android.R.id.text1);
+        title.setText(data.getItems().get(i).getTitle());
+        final TextView desc = (TextView) view.findViewById(android.R.id.text2);
+        desc.setText(data.getItems().get(i).getDescription());
+        title.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                deleteItem(i);
+                int vis = desc.getVisibility();
+                if(vis == View.VISIBLE) {
+                    desc.setVisibility(View.GONE);
+                } else {
+                    desc.setVisibility(View.VISIBLE);
+                }
             }
         });
         return view;

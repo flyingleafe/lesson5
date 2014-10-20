@@ -11,17 +11,29 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/input"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/heading_margin">
+        <LinearLayout
+            android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-        <Button
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/channel_title"
+                android:textSize="25sp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/channel_desc"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ok_button"
-            android:onClick="hello"/>
+            android:src="@android:drawable/ic_popup_sync"
+            android:onClick="refreshFeed"/>
     </LinearLayout>
 
     <ListView
