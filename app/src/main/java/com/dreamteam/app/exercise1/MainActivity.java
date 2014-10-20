@@ -1,16 +1,14 @@
 package com.dreamteam.app.exercise1;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends ListActivity {
@@ -23,7 +21,7 @@ public class MainActivity extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my);
+        setContentView(R.layout.activity_main);
         channelTitle = (TextView) findViewById(R.id.channel_title);
         channelDesc = (TextView) findViewById(R.id.channel_desc);
         list = getListView();
@@ -47,6 +45,12 @@ public class MainActivity extends ListActivity {
         showToast(getString(R.string.feed_refresh));
         FetchFeedTask task = new FetchFeedTask(this);
         task.execute("http://bash.im/rss/");
+    }
+
+    public void startWebPreview(String url) {
+        Intent intent = new Intent(this, WebPreview.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
     }
 
     @Override

@@ -50,7 +50,7 @@ public class FeedAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, final ViewGroup viewGroup) {
         if (view == null) {
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
         }
@@ -68,6 +68,13 @@ public class FeedAdapter extends BaseAdapter {
                 } else {
                     desc.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+        Button button = (Button) view.findViewById(android.R.id.button1);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity) viewGroup.getContext()).startWebPreview(data.getItems().get(i).getLink());
             }
         });
         return view;

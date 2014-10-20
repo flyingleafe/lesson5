@@ -7,5 +7,8 @@
     <string name="empty_text">No news loaded</string>
     <string name="fetching_error">Error while fetching RSS feed</string>
     <string name="feed_refresh">Refreshing the feed…</string>
+    <string name="more_btn_text">More...</string>
+    <string name="title_activity_web_preview">WebPreview</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>
