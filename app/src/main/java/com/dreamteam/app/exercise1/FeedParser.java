@@ -27,7 +27,7 @@ public class FeedParser {
         }
     }
 
-    public Feed parse(InputStream stream) {
+    public Feed parse(InputStream stream) throws SAXException {
         try {
             Document document = builder.parse(stream);
             String title = document.getElementsByTagName("title").item(0).getTextContent();
@@ -42,11 +42,9 @@ public class FeedParser {
                 feed.addItem(new FeedItem(itemTitle, itemDesc, itemLink));
             }
             return feed;
-        } catch (SAXException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            throw new SAXException(e);
         }
-        return null;
     }
 }

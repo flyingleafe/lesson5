@@ -7,8 +7,6 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.List;
-
 /**
  * Created by flyingleafe on 14.10.14.
  */
@@ -74,7 +72,7 @@ public class FeedAdapter extends BaseAdapter {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) viewGroup.getContext()).startWebPreview(data.getItems().get(i).getLink());
+                ((FeedActivity) viewGroup.getContext()).startWebPreview(data.getItems().get(i).getLink());
             }
         });
         return view;

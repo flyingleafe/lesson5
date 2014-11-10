@@ -10,5 +10,9 @@
     <string name="more_btn_text">More…</string>
     <string name="title_activity_web_preview">News view page</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_channels">ChannelsActivity</string>
+    <string name="parsing_error">Invalid feed data; cannot parse</string>
+    <string name="add_channel_hint">Add new channel url...</string>
+    <string name="empty_text_channels">No channels added yet</string>
 
 </resources>
