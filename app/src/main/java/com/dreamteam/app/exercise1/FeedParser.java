@@ -1,5 +1,7 @@
 package com.dreamteam.app.exercise1;
 
+import android.text.Html;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

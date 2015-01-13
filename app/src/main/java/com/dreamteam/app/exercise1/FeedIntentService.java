@@ -49,7 +49,8 @@ public class FeedIntentService extends IntentService {
             final long channelId = intent.getLongExtra(URL_ID, -1);
             receiver = intent.getParcelableExtra(RECEIVER);
             try {
-                Channel channel = new Channel(channelId, getContentResolver());
+                Channel channel = new Channel(channelId);
+                channel.update(getContentResolver());
                 InputStream response = new URL(channel.getUrl()).openStream();
                 Feed feed = new FeedParser().parse(response);
                 onSuccess(feed, channel);
@@ -68,7 +69,8 @@ public class FeedIntentService extends IntentService {
     }
 
     protected void onSuccess(Feed result, Channel channel) {
-        for(FeedItem item: result.getItems()) {
+        for(int i = result.getItems().size() - 1; i >= 0; i--) {
+            FeedItem item = result.getItems().get(i);
             ContentValues row = new ContentValues();
             row.put(NewsTable.CHANNEL_NAME_TITLE, channel.getId());
             row.put(NewsTable.COLUMN_NAME_TITLE, item.getTitle());

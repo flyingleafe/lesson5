@@ -1,5 +1,6 @@
 package com.dreamteam.app.exercise1;
 
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +56,7 @@ public class FeedAdapter extends BaseAdapter {
         TextView title = (TextView) view.findViewById(android.R.id.text1);
         title.setText(data.getItems().get(i).getTitle());
         final TextView desc = (TextView) view.findViewById(android.R.id.text2);
-        desc.setText(data.getItems().get(i).getDescription());
+        desc.setText(Html.fromHtml(data.getItems().get(i).getDescription()));
         title.setOnClickListener(new View.OnClickListener() {
 
             @Override

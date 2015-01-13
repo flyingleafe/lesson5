@@ -1,7 +1,10 @@
 package com.dreamteam.app.exercise1;
 
 import android.app.ListActivity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,40 +23,18 @@ import com.dreamteam.app.exercise1.db.FeedContentProvider;
 import com.dreamteam.app.exercise1.db.NewsTable;
 
 
-public class FeedActivity extends ListActivity implements Receiver {
+public class FeedActivity extends ListActivity implements Receiver, LoaderManager.LoaderCallbacks<Cursor> {
 
     private TextView channelTitle;
     private TextView channelDesc;
     private FeedAdapter adapter;
     private ListView list;
-    private Channel channel;
+    private long channelId;
+
+    private final int LOADER_ID_FEEDS = 2;
+    private final int LOADER_ID_CHANNEL = 3;
 
     public static final String FEED_ID = "feedId";
-
-    private Cursor getNewsCursor() {
-        String[] proj = {"*"};
-        String[] args = {Long.toString(channel.getId())};
-        return getContentResolver().query(
-                FeedContentProvider.NEWS_CONTENT_URL,
-                proj,
-                NewsTable.CHANNEL_NAME_TITLE + "=?",
-                args,
-                null);
-    }
-
-    private void setNewsFromDatabase() {
-        Cursor c = getNewsCursor();
-        if(c == null) return;
-        Feed feed = new Feed(channel.getTitle(), channel.getDescription());
-        while(c.moveToNext()) {
-            String title = c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_TITLE));
-            String url = c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_URL));
-            String description = c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_DESCRIPTION));
-            feed.addItem(new FeedItem(title, description, url));
-        }
-        adapter.setData(feed);
-        adapter.notifyDataSetChanged();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +45,9 @@ public class FeedActivity extends ListActivity implements Receiver {
         list = getListView();
         adapter = new FeedAdapter(new Feed());
         setListAdapter(adapter);
-        long feedId = getIntent().getLongExtra(FEED_ID, -1);
-        channel = new Channel(feedId, getContentResolver());
-        channelTitle.setText(channel.getTitle());
-        channelDesc.setText(channel.getDescription());
-        setNewsFromDatabase();
+        channelId = getIntent().getLongExtra(FEED_ID, -1);
+        getLoaderManager().initLoader(LOADER_ID_FEEDS, null, this);
+        getLoaderManager().initLoader(LOADER_ID_CHANNEL, null, this);
     }
 
     public void showToast(String s) {
@@ -77,7 +56,7 @@ public class FeedActivity extends ListActivity implements Receiver {
 
     public void refreshFeed(View view) {
         showToast(getString(R.string.feed_refresh));
-        FeedIntentService.startFeedRefresh(this, channel.getId(), new RefreshReceiver(new Handler(), this));
+        FeedIntentService.startFeedRefresh(this, channelId, new RefreshReceiver(new Handler(), this));
     }
 
     public void startWebPreview(String url) {
@@ -93,10 +72,8 @@ public class FeedActivity extends ListActivity implements Receiver {
                 Toast.makeText(this, resData.getString(Intent.EXTRA_TEXT), Toast.LENGTH_SHORT).show();
                 break;
             case FeedIntentService.STATUS_OK:
-                channel.update(getContentResolver());
-                channelTitle.setText(channel.getTitle());
-                channelDesc.setText(channel.getDescription());
-                setNewsFromDatabase();
+                getLoaderManager().restartLoader(LOADER_ID_CHANNEL, null, this);
+                getLoaderManager().restartLoader(LOADER_ID_FEEDS, null, this);
         }
     }
 
@@ -117,5 +94,52 @@ public class FeedActivity extends ListActivity implements Receiver {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        switch (i) {
+            case LOADER_ID_FEEDS:
+                return new CursorLoader(this, FeedContentProvider.NEWS_CONTENT_URL,
+                        new String[]{"*"},
+                        NewsTable.CHANNEL_NAME_TITLE + "=?",
+                        new String[]{Long.toString(channelId)},
+                        NewsTable._ID + " DESC");
+            case LOADER_ID_CHANNEL:
+                return new CursorLoader(this, FeedContentProvider.CHANNELS_CONTENT_URL,
+                        new String[]{"*"},
+                        ChannelsTable._ID + "=?",
+                        new String[]{Long.toString(channelId)},
+                        null);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
+        switch(loader.getId()) {
+            case LOADER_ID_FEEDS:
+                if (c == null) return;
+                Feed feed = new Feed();
+                while (c.moveToNext()) {
+                    String title = c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_TITLE));
+                    String url = c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_URL));
+                    String description = c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_DESCRIPTION));
+                    feed.addItem(new FeedItem(title, description, url));
+                }
+                adapter.setData(feed);
+                adapter.notifyDataSetChanged();
+                break;
+            case LOADER_ID_CHANNEL:
+                c.moveToFirst();
+                channelTitle.setText(c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_TITLE)));
+                channelDesc.setText(c.getString(c.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_DESCRIPTION)));
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

@@ -1,8 +1,11 @@
 package com.dreamteam.app.exercise1;
 
 import android.app.ListActivity;
+import android.app.LoaderManager;
 import android.app.ProgressDialog;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,28 +19,21 @@ import com.dreamteam.app.exercise1.db.ChannelsTable;
 import com.dreamteam.app.exercise1.db.FeedContentProvider;
 
 
-public class ChannelsActivity extends ListActivity implements Receiver {
+public class ChannelsActivity extends ListActivity implements Receiver, LoaderManager.LoaderCallbacks<Cursor> {
 
     private TextView newChannelInput;
     private ChannelsAdapter adapter;
     private ProgressDialog dialog;
 
-    private Cursor getChannelsCursor() {
-        String[] proj = {"*"};
-        return getContentResolver().query(
-                    FeedContentProvider.CHANNELS_CONTENT_URL,
-                    proj,
-                    null,
-                    null,
-                    null);
-    }
+    private int LOADER_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channels);
         newChannelInput = (TextView) findViewById(R.id.new_channel_input);
-        adapter = new ChannelsAdapter(this, getChannelsCursor(), 0);
+        adapter = new ChannelsAdapter(this, null, 0);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
         setListAdapter(adapter);
     }
 
@@ -53,14 +49,14 @@ public class ChannelsActivity extends ListActivity implements Receiver {
         channel.save(getContentResolver());
         FeedIntentService.startFeedRefresh(this, channel.getId(), new RefreshReceiver(new Handler(), this));
         dialog = ProgressDialog.show(this, "Adding feed...", "Wait a bit", true);
+        newChannelInput.setText("");
     }
 
     public void deleteChannel(long channelId) {
         String[] args = {Long.toString(channelId)};
         getContentResolver().delete(FeedContentProvider.CHANNELS_CONTENT_URL,
                 ChannelsTable._ID + "=?", args);
-        adapter.changeCursor(getChannelsCursor());
-        adapter.notifyDataSetChanged();
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
     @Override
@@ -71,8 +67,7 @@ public class ChannelsActivity extends ListActivity implements Receiver {
                 Toast.makeText(this, resData.getString(Intent.EXTRA_TEXT), Toast.LENGTH_SHORT).show();
                 break;
             case FeedIntentService.STATUS_OK:
-                adapter.changeCursor(getChannelsCursor());
-                adapter.notifyDataSetChanged();
+                getLoaderManager().restartLoader(LOADER_ID, null, this);
         }
     }
 
@@ -93,5 +88,22 @@ public class ChannelsActivity extends ListActivity implements Receiver {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(this, FeedContentProvider.CHANNELS_CONTENT_URL,
+                new String[]{"*"}, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        adapter.changeCursor(cursor);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        // fuck nothing
     }
 }

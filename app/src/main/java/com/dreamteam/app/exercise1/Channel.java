@@ -17,24 +17,10 @@ import java.util.Arrays;
 public class Channel {
     private long id = -1;
 
-    private String url, title = "", description = "";
+    private String url = "", title = "", description = "";
 
-    public Channel(long id, ContentResolver resolver) {
-        String[] selections = {"*"};
-        String[] queryArgs = {Long.toString(id)};
-        Cursor cursor = resolver.query(
-                FeedContentProvider.CHANNELS_CONTENT_URL,
-                selections,
-                ChannelsTable._ID + "=?",
-                queryArgs,
-                null);
-        if(cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            this.id = id;
-            title = cursor.getString(cursor.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_TITLE));
-            url = cursor.getString(cursor.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_URL));
-            description = cursor.getString(cursor.getColumnIndexOrThrow(ChannelsTable.COLUMN_NAME_DESCRIPTION));
-        }
+    public Channel(long id) {
+        this.id = id;
     }
 
     public Channel(String url) {
