@@ -55,7 +55,8 @@ public class FeedParser {
         }
 
         @Override
-        public void endElement(String uri, String localName, String qName) throws SAXException {
+        public void endEle
+        ment(String uri, String localName, String qName) throws SAXException {
             record = false;
             if(qName.equals("title")) {
                 if(currentItem == null) {
